@@ -17,9 +17,15 @@ TechCrunch AI RSS was retained. I did not swap the feed.
 6. Upsert row(s) (Data Table): writes to the tech_signal_items table, matching on item_url so repeat runs update existing rows instead of adding duplicates.
 
 ## Evidence
-- `screenshot_1_successful_execution.jpg`: a successful full workflow execution, all six nodes green.
-- `screenshot_2_tech_signal_items_table.jpg`: the completed tech_signal_items table (9 rows, 9 unique item_url values).
-- `news_aggregator.json`: workflow exported after the final successful run.
+Workflow export: `news_aggregator.json` (exported after the final successful run).
+
+**Screenshot 1: successful full workflow execution (all six nodes green)**
+
+![Successful full workflow execution](screenshot_1_successful_execution.jpg)
+
+**Screenshot 2: completed tech_signal_items table (9 rows, 9 unique item_url values)**
+
+![tech_signal_items table](screenshot_2_tech_signal_items_table.jpg)
 
 Duplicate check: after the first run the table held 8 rows. On the second run TechCrunch had published one new article, so the table grew to 9 rows (the 8 existing rows were updated, not repeated). A third run left it at 9 rows.
 
