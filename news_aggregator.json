@@ -1,0 +1,349 @@
+{
+  "name": "Tech Signal - News Aggregator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fb647917-b2d2-4ff3-95c1-39b13e3aa393",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.rssFeedRead",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "76a3eb52-a035-4d86-bdf0-6eb6dfd65544",
+      "name": "RSS Read"
+    },
+    {
+      "parameters": {
+        "maxItems": 10
+      },
+      "type": "n8n-nodes-base.limit",
+      "typeVersion": 1,
+      "position": [
+        448,
+        0
+      ],
+      "id": "ce256e1c-e1b6-4949-8713-c5dffebe51a4",
+      "name": "Limit"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8bdc4def-9b11-4eba-b19a-d45a266e8496",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "AI",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ca03bb20-0e8d-4d67-8aff-0d99c792bdfb",
+              "leftValue": "={{ $json.title }}",
+              "rightValue": "agent",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "3d090b9a-7c3a-40be-b941-d8305d379316",
+              "leftValue": "={{ $json.content }}",
+              "rightValue": "AI",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            },
+            {
+              "id": "ced06907-d585-44dc-b2fc-6f8f57cdddcc",
+              "leftValue": "={{ $json.contentSnippet }}",
+              "rightValue": "AI",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        0
+      ],
+      "id": "78e8e6f9-23e1-4dc4-892b-71e6dbfbae1c",
+      "name": "Filter"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "96b27f60-6360-494d-9368-75823ec5e332",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "9a95071a-3895-4601-a355-ee4be5e03a2f",
+              "name": "summary",
+              "value": "={{ $json.contentSnippet ?? $json.content ?? \"\" }}",
+              "type": "string"
+            },
+            {
+              "id": "4ebd60c5-336e-44ac-8d30-e57da56020a3",
+              "name": "published_at",
+              "value": "={{ $json.isoDate ?? $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "5c80b613-5bc8-4122-8355-7f815c9d8b4c",
+              "name": "source",
+              "value": "TechCrunch AI RSS",
+              "type": "string"
+            },
+            {
+              "id": "382be7ac-2aa5-4e0a-8963-db208ab5d5a2",
+              "name": "item_url",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "2b10a622-3b56-4646-984d-6e0f1763af9a",
+              "name": "collected_at",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "02983364-2ab2-4d9c-8cb0-9e0c0039b8af",
+              "name": "topic",
+              "value": "AI",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        896,
+        0
+      ],
+      "id": "e91c3cf1-3843-40a3-896c-8c5be872f1ac",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "4DqlKCQkKyDuIi6O",
+          "mode": "list",
+          "cachedResultName": "tech_signal_items",
+          "cachedResultUrl": "/projects/WpP3M2TyazkKiNKT/datatables/4DqlKCQkKyDuIi6O"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "item_url",
+              "keyValue": "={{ $json.item_url }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "collected_at": "={{ $json.collected_at }}",
+            "summary": "={{ $json.summary }}",
+            "topic": "={{ $json.topic }}",
+            "source": "={{ $json.source }}",
+            "published_at": "={{ $json.published_at }}",
+            "title": "={{ $json.title }}",
+            "item_url": "={{ $json.item_url }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "item_url",
+              "displayName": "item_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "title",
+              "displayName": "title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "published_at",
+              "displayName": "published_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "source",
+              "displayName": "source",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "topic",
+              "displayName": "topic",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "summary",
+              "displayName": "summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "collected_at",
+              "displayName": "collected_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        144
+      ],
+      "id": "87a37a88-77da-482d-a81e-5a75ee470f91",
+      "name": "Upsert row(s)"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "RSS Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS Read": {
+      "main": [
+        [
+          {
+            "node": "Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Limit": {
+      "main": [
+        [
+          {
+            "node": "Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Upsert row(s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "tags": [],
+  "versionId": "7491c35c-c698-4c56-824f-52e1eebfa182",
+  "meta": null,
+  "nodeGroups": [],
+  "id": "zyZluoRIxOqvshbQ"
+}
